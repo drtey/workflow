@@ -1,0 +1,32 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "ponytail@git+https://github.com/DietrichGebert/ponytail.git"
+  ],
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "make *": "allow",
+      "uv *": "allow",
+      "git *": "allow",
+      "gh run *": "allow",
+      "docker *": "allow",
+      "npm *": "allow",
+      "npx *": "allow",
+      "node *": "allow",
+      "python *": "allow",
+      "python3 *": "allow",
+      "pip *": "allow",
+      "ruff *": "allow",
+      "grep *": "allow",
+      "awk *": "allow",
+      "xargs *": "allow",
+      "curl *": "allow",
+      "bash *": "allow",
+      "echo *": "allow",
+      "git clean *": "deny",
+      "git push *": "ask"
+    }
+  }
+}
