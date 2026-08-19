@@ -12,9 +12,6 @@ Durable knowledge distilled from session logs. **Read this at the start of every
 
 ## Decisions
 
-- [2026-08-18] Skeleton created from project-f's harness setup — Claude Code canonical (`.claude/`), opencode bridge (`.opencode/`), markdown memory in git, Stop-hook episodic capture + `/memory-curate` curation.
-- [2026-08-18] Context-loss hardening — MEMORY.md auto-imported via `@import` in CLAUDE.md (read phase needs no manual step); on-stop.sh also wired to PreCompact (Claude) and session.compacted/compacting (opencode); post-edit.sh scans written files for obvious secrets (.env excluded); hooks covered by scripts/test-hooks.sh. Dropped as YAGNI: curation nag (needs extra state) and SessionStart hook (redundant with @import + /session-start).
-
 ## Constraints
 
 ## Preferences
