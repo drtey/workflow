@@ -21,14 +21,16 @@ cd "$PROJECT_ROOT"
 # .env files are skipped — that's where secrets legitimately live (gitignored).
 BASE=$(basename "$FILE")
 if [[ "$BASE" != .env* && "$BASE" != *.env ]]; then
-    if grep -qE '(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY)' "$FILE" 2>/dev/null; then
+    if grep -qE '(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|sk-[A-Za-z0-9_-]{32,}|xai-[A-Za-z0-9_-]{32,}|hf_[A-Za-z0-9]{34}|-----BEGIN [A-Z ]*PRIVATE KEY)' "$FILE" 2>/dev/null; then
         echo "possible secret in $FILE — remove it (never write secrets to code or docs)" >&2
         exit 1
     fi
 fi
 
 # ── Project checks ────────────────────────────────────────────────────────────
-# TODO(project): wire your stack's per-file quality gates here. Pattern:
+# TODO(project): wire your stack's per-file quality gates here. Keep these to
+# fast, single-file LINT — this runs on every edit. Test suites belong in
+# on-stop.sh or a pre-commit hook, not here (per-file test runs murder latency).
 #
 # if [[ "$FILE" == *.py ]]; then
 #     if ! uv run ruff check --quiet "$FILE"; then
@@ -40,13 +42,6 @@ fi
 # if [[ "$FILE" == *.ts || "$FILE" == *.tsx ]]; then
 #     if ! npx --no-install eslint "$FILE"; then
 #         echo "eslint: fix lint errors in $FILE before continuing" >&2
-#         exit 1
-#     fi
-# fi
-#
-# if [[ "$FILE" == */src/* ]]; then
-#     if ! make test-unit --no-print-directory -s; then
-#         echo "unit tests failed — fix before proceeding" >&2
 #         exit 1
 #     fi
 # fi

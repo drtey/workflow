@@ -67,4 +67,4 @@ memory treated as code).
 - [Claude Code](https://claude.com/claude-code) with the `superpowers` and
   `ponytail` plugins enabled (already set in `.claude/settings.json`).
 - Optional: [opencode](https://opencode.ai) — plugins declared in `opencode.json`,
-  hooks bridged by `.opencode/plugin/claude-hooks.js`.
+  hooks bridged by `.opencode/plugins/claude-hooks.js`.

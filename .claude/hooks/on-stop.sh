@@ -13,6 +13,16 @@ mkdir -p "$MEM"
 STAMP="$MEM/.last-rev"
 LAST=$(cat "$STAMP" 2>/dev/null || echo "")
 HEAD=$(git rev-parse --verify --quiet HEAD 2>/dev/null || echo "")
+STATUS=$(git status --short 2>/dev/null || true)
+
+# Stop fires at the end of every turn — skip when nothing meaningful changed
+# since the last capture, or the log fills with identical stops. The signature
+# excludes memory/ (the hook's own writes there dirty the tree otherwise).
+SIGSTAMP="$MEM/.last-sig"
+SIG="$HEAD|$(printf '%s\n' "$STATUS" | grep -v 'memory/' || true)"
+if [ "$SIG" = "$(cat "$SIGSTAMP" 2>/dev/null || echo "")" ]; then
+    exit 0
+fi
 
 FILE="$MEM/$(date +%Y-%m-%d).md"
 if [ ! -f "$FILE" ]; then
@@ -29,7 +39,6 @@ fi
         echo "- commits since last stop:"
         git log --oneline "$LAST..$HEAD" 2>/dev/null | sed 's/^/  - /' || true
     fi
-    STATUS=$(git status --short 2>/dev/null || true)
     if [ -n "$STATUS" ]; then
         echo "- working tree:"
         echo "$STATUS" | sed 's/^/  - /'
@@ -44,6 +53,7 @@ fi
 } >> "$FILE"
 
 [ -n "$HEAD" ] && echo "$HEAD" > "$STAMP"
+echo "$SIG" > "$SIGSTAMP"
 
 # ── Project checks (optional) ─────────────────────────────────────────────────
 # TODO(project): run your fast verification suite here, e.g.:

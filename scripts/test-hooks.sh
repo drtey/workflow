@@ -82,12 +82,24 @@ expect "blocks GitHub token" 1 "$(post "$SANDBOX/src/leak_gh.py")"
 printf '%s\nfake\n' "$PKEY_HDR" > src/leak_key.pem
 expect "blocks private key" 1 "$(post "$SANDBOX/src/leak_key.pem")"
 
+OPENAI_KEY="sk-""proj-abcdefghijklmnopqrstuvwxyz0123456789ABCD"
+XAI_KEY="xai-""abcdefghijklmnopqrstuvwxyz0123456789"
+
+printf 'key = "%s"\n' "$OPENAI_KEY" > src/leak_openai.py
+expect "blocks LLM sk- key" 1 "$(post "$SANDBOX/src/leak_openai.py")"
+
+printf 'key = "%s"\n' "$XAI_KEY" > src/leak_xai.py
+expect "blocks xai- key" 1 "$(post "$SANDBOX/src/leak_xai.py")"
+
 printf 'AWS_KEY=%s\n' "$AWS_KEY" > .env
 expect "skips .env (secrets live there)" 0 "$(post "$SANDBOX/.env")"
 
 expect "no self-trigger on hook script" 0 "$(post "$SANDBOX/.claude/hooks/post-edit.sh")"
 
 # ── on-stop ───────────────────────────────────────────────────────────────────
+# commit the fixture files created above so the tree is clean for dedup testing
+git add -A && git commit -qm "fixtures" >/dev/null 2>&1 || true
+
 code=0; bash .claude/hooks/on-stop.sh >/dev/null 2>&1 || code=$?
 expect "on-stop exits 0" 0 "$code"
 
@@ -96,10 +108,14 @@ found=1
 if [ -f "$LOG" ] && grep -q "session stop" "$LOG"; then found=0; fi
 expect "writes episodic entry" 0 "$found"
 
-code=0; bash .claude/hooks/on-stop.sh >/dev/null 2>&1 || code=$?
-count=$(grep -c "session stop" "$LOG")
-if [ "$count" -ge 2 ]; then appended=0; else appended=1; fi
-expect "appends on second run" 0 "$appended"
+# unchanged repo (same HEAD, clean tree) must NOT append — dedup
+bash .claude/hooks/on-stop.sh >/dev/null 2>&1 || true
+expect "dedups unchanged stop" 1 "$(grep -c 'session stop' "$LOG")"
+
+# a change in the working tree makes it append again
+echo "change" >> README.md
+bash .claude/hooks/on-stop.sh >/dev/null 2>&1 || true
+expect "appends after change" 2 "$(grep -c 'session stop' "$LOG")"
 
 # ── on-stop: repo without commits ─────────────────────────────────────────────
 EMPTY=$(mktemp -d)
