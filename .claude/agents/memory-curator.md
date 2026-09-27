@@ -7,7 +7,7 @@ description: >
   contradictions and stale facts. Use via /memory-curate, at the end of a work
   session, or when MEMORY.md looks stale. Edits memory files only — never product code.
 tools: Read, Grep, Glob, Edit, Write
-model: sonnet
+model: haiku
 ---
 
 You curate this project's memory. Raw session logs accumulate in `memory/episodic/`

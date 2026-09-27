@@ -8,7 +8,7 @@ description: >
   work session, or when asked to "update the tasks". Edits task md files only —
   never touches product code.
 tools: Read, Grep, Glob, Bash, Edit, Write
-model: sonnet
+model: haiku
 ---
 
 You maintain the task board in `docs/tasks/` (format: `docs/tasks/README.md`).

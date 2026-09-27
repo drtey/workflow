@@ -76,8 +76,17 @@ alternatives instead.
 - Do NOT alter the codebase structure without updating docs/ARCHITECTURE.md's module
   map in the same change.
 
+## Token economy
+
+- Files over 350 lines: a full `Read` is blocked by `pre-read.sh`. To understand one,
+  delegate to the `bulk-reader` agent (haiku) with a concrete question. To edit one,
+  `Read` with `offset`/`limit` for the exact range.
+- Do NOT delegate reasoning or edits to `bulk-reader` — it misses subtle bugs and its
+  line numbers are approximate. Threshold: `READ_MAX_LINES` env var.
+
 ## Agents
 
+- `bulk-reader` — cheap (haiku) reader for large files; answers a question in bullets.
 - `memory-curator` — consolidate episodic → semantic memory (`/memory-curate`).
 - `task-tracker` — reconcile `docs/tasks/*.md` with repo evidence.
 - `dead-code-remover` — verified dead-code deletion in tested batches.

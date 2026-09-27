@@ -6,8 +6,8 @@ Walk the user through bootstrapping this skeleton:
 
 1. `grep -rn "TODO(project)" . --exclude-dir=.git` to list every placeholder.
 2. Go file by file, in this order, asking the user for each answer:
-   - `CLAUDE.md` + `AGENTS.md`: project one-liner, stack, commands, architecture,
-     domain-specific non-negotiable rules. Keep both files in sync.
+   - `CLAUDE.md`: project one-liner, stack, commands, architecture,
+     domain-specific non-negotiable rules.
    - `.claude/hooks/post-edit.sh` + `.claude/hooks/on-stop.sh`: wire the stack's
      lint/test checks into the marked sections.
    - `docs/ARCHITECTURE.md`: module map and dependency rule.

@@ -96,6 +96,22 @@ expect "skips .env (secrets live there)" 0 "$(post "$SANDBOX/.env")"
 
 expect "no self-trigger on hook script" 0 "$(post "$SANDBOX/.claude/hooks/post-edit.sh")"
 
+# ── pre-read ──────────────────────────────────────────────────────────────────
+rd() { # <json> [env] -> exit code of pre-read.sh
+    local code=0
+    printf '%s' "$1" | env ${2:-} bash .claude/hooks/pre-read.sh >/dev/null 2>&1 || code=$?
+    echo "$code"
+}
+seq 400 > big.txt
+seq 10 > small.txt
+expect "blocks big full read"     2 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/big.txt\"}}")"
+expect "allows big with limit"    0 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/big.txt\",\"limit\":50}}")"
+expect "allows big with offset"   0 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/big.txt\",\"offset\":100}}")"
+expect "allows small file"        0 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/small.txt\"}}")"
+expect "allows missing file"      0 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/nope.txt\"}}")"
+expect "threshold via env"        0 "$(rd "{\"tool_input\":{\"file_path\":\"$SANDBOX/big.txt\"}}" READ_MAX_LINES=1000)"
+expect "read bad json fails open" 0 "$(rd 'not json')"
+
 # ── on-stop ───────────────────────────────────────────────────────────────────
 # commit the fixture files created above so the tree is clean for dedup testing
 git add -A && git commit -qm "fixtures" >/dev/null 2>&1 || true
